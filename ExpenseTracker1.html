@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form onsubmit="saveToLocalStorage(event)">
+        <label for="amount">Choose Expense Amount</label>
+        <input id="amount" type="number" required/>
+        <label for="des">Choose description</label>
+        <input id="des" type="text" required/>
+        <label>Choose a category</label>
+        <select id="cat" required>
+            <option>Movie</option>
+            <option>Electricity</option>
+            <option>Fuel</option>
+            <option>Food</option>
+        </select>
+        <button>Add Expense</button>
+    </form>
+    <ul id='listOfExpenses'></ul>
+    <script>
+        function saveToLocalStorage(event) {
+            event.preventDefault();
+            const expenseAmount = document.getElementById("amount").value;
+            const chooseDescription = document.getElementById("des").value;
+            const chooseCategory = document.getElementById("cat").value;
+        
+            const obj = {
+                expenseAmount,
+                chooseDescription,
+                chooseCategory
+            }
+            localStorage.setItem(obj.chooseDescription, JSON.stringify(obj))
+            showNewUserOnScreen(obj)
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const localStorageObj = localStorage;
+            const localstoragekeys  = Object.keys(localStorageObj)
+
+            for(var i =0; i< localstoragekeys.length; i++){
+                const key = localstoragekeys[i]
+                const userDetailsString = localStorageObj[key];
+                const userDetailsObj = JSON.parse(userDetailsString);
+                showNewUserOnScreen(userDetailsObj)
+            }
+        })
+
+        //Show user on screen
+        function showNewUserOnScreen(user)
+        {
+            document.getElementById('amount').value = '';
+            document.getElementById('des').value = '';
+            document.getElementById('cat').value ='';
+         
+            if(localStorage.getItem(user.chooseDescription) !== null)
+            {
+                    removeUserFromScreen(user.chooseDescription)
+            }
+
+            const parentNode = document.getElementById("listOfExpenses");
+            const childHTML = `<li id=${user.chooseDescription}> ${user.expenseAmount} - ${user.chooseDescription} - ${user.chooseCategory}
+                                    <button onclick=deleteUser('${user.chooseDescription}')> Delete User </button>
+                                    <button onclick=editUserDetails('${user.expenseAmount}','${user.chooseDescription}','${user.chooseCategory}')>Edit User </button>
+                                 </li>`
+
+            parentNode.innerHTML = parentNode.innerHTML + childHTML;
+        }
+
+        //Edit User
+        function editUserDetails(expenseAmount, chooseDescription, chooseCategory)
+        {
+
+            document.getElementById('amount').value = expenseAmount;
+            document.getElementById('des').value = chooseDescription;
+            document.getElementById('cat').value = chooseCategory;
+            deleteUser(chooseDescription);
+        }
+
+        //Delet User from local storage
+        function deleteUser(chooseDescription)
+        {
+            localStorage.removeItem(chooseDescription);
+            removeUserFromScreen(chooseDescription);
+
+        }
+
+        //Remove User from screen
+        function removeUserFromScreen(chooseDescription)
+        {
+            const parentNode = document.getElementById('listOfExpenses');
+            const childNodeToBeDeleted = document.getElementById(chooseDescription);
+
+            if(childNodeToBeDeleted) 
+            {
+                    parentNode.removeChild(childNodeToBeDeleted)  
+            }
+        }
+
+    </script>
+
+</body>
+</html>
